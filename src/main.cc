@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv) {
     if (argc < 2 || std::string(argv[1]) == "help") {
-        std::cout << "usage: CalicoC8 <rom-path or 'help'>" << std::endl;
+        std::cout << "usage: calico-c8 <rom-path or 'help'>" << std::endl;
 
         return -1;
     }

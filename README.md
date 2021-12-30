@@ -24,7 +24,7 @@ Cross-platform Chip8 emulator written in C++.
 * Clone the repository
 
 ```
-git clone https://github.com/Xiperiz/CalicoC8
+git clone https://github.com/Xiperiz/calico-c8
 ```
 
 * Compile the program
@@ -39,7 +39,7 @@ make
 * Launch a ROM
 
 ```
-CalicoC8 <path to rom or 'help'> <args>
+calico-c8 <path to rom or 'help'> <args>
 ```
 
 ### Command line arguments
@@ -52,7 +52,7 @@ The arguments with values need to have a format specified above (-arg:val), belo
 arguments used together:
 
 ```
-CalicoC8 SpaceInvaders.ch8 -no_sound -clock_speed:600 -window_size:1280:640
+calico-c8 SpaceInvaders.ch8 -no_sound -clock_speed:600 -window_size:1280:640
 ```
 
 You can omit any argument and the default will be used, below are default values for each argument:
