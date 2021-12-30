@@ -195,7 +195,7 @@ int Emulator::Run(const std::string &rom_path) {
         for (auto i = 0; i < _args.clock_speed / 60; i++) {
             try {
                 _interpreter->ExecuteNextInstruction();
-            } catch (const std::runtime_error &e) {
+            } catch (const std::exception &e) {
                 std::cout << e.what();
 
                 return -2;
