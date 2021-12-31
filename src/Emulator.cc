@@ -4,9 +4,11 @@
 #include <string>
 #include "Emulator.hh"
 
-std::vector<uint8_t> ReadBinaryToVector(const std::string &path) {
+std::vector<uint8_t> ReadBinaryToVector(const std::string& path)
+{
     std::ifstream file(path, std::ios::binary);
-    if (!file.good()) {
+    if (!file.good())
+    {
         throw std::invalid_argument("Invalid ROM path: " + path);
     }
 
@@ -26,13 +28,16 @@ std::vector<uint8_t> ReadBinaryToVector(const std::string &path) {
     return vec;
 }
 
-Emulator::Emulator(const ParsedArgs &args) {
-    _args = args;
+Emulator::Emulator(const ApplicationCmdSettings& args)
+        : _args(args)
+{
 }
 
 // Used to keep interpreter as separate module from SDL
-static CalicoEvent TranslateSDLEventToCalicoEvent(uint32_t sdl_event_type) {
-    switch (sdl_event_type) {
+static CalicoEvent TranslateSDLEventToCalicoEvent(uint32_t sdl_event_type)
+{
+    switch (sdl_event_type)
+    {
         case SDL_KEYDOWN:
             return CalicoEvent::KeyDown;
 
@@ -45,8 +50,10 @@ static CalicoEvent TranslateSDLEventToCalicoEvent(uint32_t sdl_event_type) {
 }
 
 // Used to keep interpreter as separate module from SDL
-static CalicoKey TranslateSDLKeyToCalicoKey(SDL_Keycode sdl_key) {
-    switch (sdl_key) {
+static CalicoKey TranslateSDLKeyToCalicoKey(SDL_Keycode sdl_key)
+{
+    switch (sdl_key)
+    {
         case SDLK_1:
             return CalicoKey::MK1;
 
@@ -100,19 +107,23 @@ static CalicoKey TranslateSDLKeyToCalicoKey(SDL_Keycode sdl_key) {
     }
 }
 
-static void SDLAudioCallBack(void *user_data, Uint8 *raw_buffer, int bytes) {
-    auto *buffer = (Sint16 *) raw_buffer;
+static void SDLAudioCallBack(void* user_data, Uint8* raw_buffer, int bytes)
+{
+    auto* buffer = (Sint16*) raw_buffer;
     int length = bytes / 2;
-    int &sample_nr = *((int *) user_data);
+    int& sample_nr = *((int*) user_data);
 
-    for (auto i = 0; i < length; i++, sample_nr++) {
+    for (auto i = 0; i < length; i++, sample_nr++)
+    {
         double time = (double) sample_nr / (double) 44100;
         buffer[i] = (Sint16) (28000 * sin(2.0f * M_PI * 441.0f * time));
     }
 }
 
-int Emulator::InitSDL() {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
+int Emulator::InitSDL()
+{
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+    {
         _sdl_error_message = SDL_GetError();
         return -1;
     }
@@ -125,27 +136,31 @@ int Emulator::InitSDL() {
     audio_spec_request.callback = SDLAudioCallBack;
     audio_spec_request.userdata = &_audio_sample_number;
 
-    if (SDL_OpenAudio(&audio_spec_request, &_audio_spec) != 0) {
+    if (SDL_OpenAudio(&audio_spec_request, &_audio_spec) != 0)
+    {
         _sdl_error_message = SDL_GetError();
         return -2;
     }
 
     _window = SDL_CreateWindow("CalicoC8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                _args.window_size_x, _args.window_size_y, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
-    if (_window == nullptr) {
+    if (_window == nullptr)
+    {
         _sdl_error_message = "Unable to create SDL Window";
         return -2;
     }
 
     _renderer = SDL_CreateRenderer(_window, 0, SDL_RENDERER_ACCELERATED);
-    if (_renderer == nullptr) {
+    if (_renderer == nullptr)
+    {
         _sdl_error_message = "Unable to create SDL Renderer";
         return -3;
     }
 
     _frame_buffer_texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ABGR8888,
                                               SDL_TEXTUREACCESS_STATIC, 64, 32);
-    if (_frame_buffer_texture == nullptr) {
+    if (_frame_buffer_texture == nullptr)
+    {
         _sdl_error_message = "Unable to create SDL Texture for frame buffer";
         return -4;
     }
@@ -153,17 +168,22 @@ int Emulator::InitSDL() {
     return 0;
 }
 
-void Emulator::CleanupSDL() {
+void Emulator::CleanupSDL()
+{
     SDL_DestroyTexture(_frame_buffer_texture);
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     SDL_Quit();
 }
 
-int Emulator::Run(const std::string &rom_path) {
-    try {
+int Emulator::Run(const std::string& rom_path)
+{
+    try
+    {
         _interpreter->LoadROM(ReadBinaryToVector(rom_path));
-    } catch (const std::invalid_argument &e) {
+    }
+    catch (const std::invalid_argument& e)
+    {
         std::cout << e.what() << std::endl;
 
         return -1;
@@ -171,7 +191,8 @@ int Emulator::Run(const std::string &rom_path) {
 
 
     int init_sdl_res = InitSDL();
-    if (init_sdl_res != 0) {
+    if (init_sdl_res != 0)
+    {
         CleanupSDL();
 
         std::cout << "Error: " << _sdl_error_message << std::endl;
@@ -179,23 +200,32 @@ int Emulator::Run(const std::string &rom_path) {
         return init_sdl_res;
     }
 
-    while (_main_loop_running) {
+    while (_main_loop_running)
+    {
         uint64_t start = SDL_GetPerformanceCounter();
 
-        while (SDL_PollEvent(&_event) != 0) {
-            if (_event.type == SDL_QUIT) {
+        while (SDL_PollEvent(&_event) != 0)
+        {
+            if (_event.type == SDL_QUIT)
+            {
                 _main_loop_running = false;
-            } else if (_event.type == SDL_KEYDOWN || _event.type == SDL_KEYUP) {
+            }
+            else if (_event.type == SDL_KEYDOWN || _event.type == SDL_KEYUP)
+            {
                 _interpreter->HandleKeyEvent(TranslateSDLEventToCalicoEvent(_event.type),
                                              TranslateSDLKeyToCalicoKey(_event.key.keysym.sym));
             }
         }
 
         // Ex. 600 hz clock speed (600hz / 60fps = 10 instructions per second)
-        for (auto i = 0; i < _args.clock_speed / 60; i++) {
-            try {
+        for (auto i = 0; i < _args.clock_speed / 60; i++)
+        {
+            try
+            {
                 _interpreter->ExecuteNextInstruction();
-            } catch (const std::exception &e) {
+            }
+            catch (const std::exception& e)
+            {
                 std::cout << e.what();
 
                 return -2;
@@ -205,13 +235,15 @@ int Emulator::Run(const std::string &rom_path) {
         _interpreter->TickSoundTimer();
         _interpreter->TickDelayTimer();
 
-        if (_interpreter->ShouldPlaySound() && _args.sound_enabled) {
+        if (_interpreter->ShouldPlaySound() && _args.sound_enabled)
+        {
             SDL_PauseAudio(0);
             SDL_Delay(10); // TODO maybe find a way without delay?
             SDL_PauseAudio(1);
         }
 
-        if (_interpreter->IsDrawFlagSet()) {
+        if (_interpreter->DrawFlag())
+        {
             SDL_UpdateTexture(_frame_buffer_texture, nullptr, _interpreter->AccessFrameBuffer().GetSDLPixelArray(),
                               64 * sizeof(uint32_t));
 
@@ -219,7 +251,7 @@ int Emulator::Run(const std::string &rom_path) {
             SDL_RenderCopy(_renderer, _frame_buffer_texture, nullptr, nullptr);
             SDL_RenderPresent(_renderer);
 
-            _interpreter->DisableDrawFlag();
+            _interpreter->DrawFlag() = false;
         }
 
         uint64_t end = SDL_GetPerformanceCounter();

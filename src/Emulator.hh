@@ -8,37 +8,31 @@
 #include "CommandLine.hh"
 #include "Interpreter.hh"
 
-std::vector<uint8_t> ReadBinaryToVector(const std::string &path);
+std::vector<uint8_t> ReadBinaryToVector(const std::string& path);
 
-class Emulator {
+class Emulator
+{
 public:
-    explicit Emulator(const ParsedArgs &args);
+    explicit Emulator(const ApplicationCmdSettings& args);
 
-    int Run(const std::string &rom_path);
+    int Run(const std::string& rom_path);
 
 private:
     int InitSDL();
-
     void CleanupSDL();
-
-    ParsedArgs _args;
 
     std::unique_ptr<Chip8Interpreter> _interpreter = std::make_unique<Chip8Interpreter>();
 
+    ApplicationCmdSettings _args;
+
     bool _main_loop_running = true;
 
-    SDL_Window *_window = nullptr;
-
-    SDL_Renderer *_renderer = nullptr;
-
-    SDL_Texture *_frame_buffer_texture = nullptr;
-
+    SDL_Window* _window = nullptr;
+    SDL_Renderer* _renderer = nullptr;
+    SDL_Texture* _frame_buffer_texture = nullptr;
     SDL_Event _event{};
-
     SDL_AudioSpec _audio_spec{};
-
     std::string _sdl_error_message;
-
     int _audio_sample_number = 0;
 };
 
