@@ -70,7 +70,8 @@ public:
     void TickSoundTimer();
     bool ShouldPlaySound() const;
 
-    bool& DrawFlag();
+    bool DrawFlag();
+    void DrawFlag(bool new_val);
 
     uint8_t GetXFromOpcode() const;
     uint8_t GetYFromOpcode() const;

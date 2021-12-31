@@ -251,7 +251,7 @@ int Emulator::Run(const std::string& rom_path)
             SDL_RenderCopy(_renderer, _frame_buffer_texture, nullptr, nullptr);
             SDL_RenderPresent(_renderer);
 
-            _interpreter->DrawFlag() = false;
+            _interpreter->DrawFlag(false);
         }
 
         uint64_t end = SDL_GetPerformanceCounter();

@@ -62,9 +62,14 @@ bool Chip8Interpreter::ShouldPlaySound() const
     return _timers.sound != 0;
 }
 
-bool& Chip8Interpreter::DrawFlag()
+bool Chip8Interpreter::DrawFlag()
 {
     return _draw_flag;
+}
+
+void Chip8Interpreter::DrawFlag(bool new_val)
+{
+    _draw_flag = new_val;
 }
 
 uint8_t Chip8Interpreter::GetXFromOpcode() const
